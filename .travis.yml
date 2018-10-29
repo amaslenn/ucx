@@ -1,0 +1,29 @@
+sudo: false
+language: cpp
+compiler: gcc
+os: linux
+
+if: tag IS present
+
+addons:
+  apt:
+    packages:
+    - libnuma-dev
+    - libibverbs-dev
+
+script:
+- "./autogen.sh"
+- "./contrib/configure-release"
+- make
+- make dist
+
+deploy:
+  provider: releases
+  api_key:
+    secure: "KOOVJC5DNjLtVMm+bkzJXjT4ZsJGkIjiCfXMX66qluWU3a2XLOCp1IlqclvDnvxnU5Be6QxNxieT3Yowz60vUMyrVPJZu53dYXIYkaQFaJtSpTbz/h1zw5CM73qB1EUZb2LVd/956NTJrpdjikZFzB1aepAbNGleKF6S8dPCJ4BaN5TqZZRRcWfuxsHjM2BMzNpu5NJaXSxl/e1scTgHY4+MTQshAiAWUMuGn5MJhZKaBnFgSXBZrLo4ovjSMKoy1vwJiZ0rLkTz5bDUxthwuyiAFMKdbaJ3dtSN669qRj9muS1MsDa5Y6kCjgAun8dpf/Vk9U7kK0peRt+frnBcWPI/PfqHXTu2AwxxdKAEyAmVYo5XYT+JfmDQ5n9k/GwYD3Sf+gOVY7w/+4t7ahpleWsSwyWiTPbseJSFuYb1f7/A3dg0QVhaU779IS0E7Rp98gQ/Bs89VHCkVVJ1tK7L4R27pGruTGVri1SxYNXl3bWf7XedGGgOPB9JVN/SCO+RvKLDL6LF1SkJiTLPrl7YZYSu/JtotslHIS36mvVmOz4VFy16t51HTcaWThVXQjTIkHO8HAozsDG8H6TaBcTUDuc4l9Ha/WEjwUM3SLUJfp3RhbsezxpI9H9dXMNO33evFhFoBlIrGyWFhnMQTOETtHX/rjP8hItQGdu38nEM7Tw="
+  file_glob: true
+  file: "*.tar.gz"
+  skip_cleanup: true
+  on:
+    tags: true
+
