@@ -1,0 +1,137 @@
+parameters:
+  test_duration: 2
+
+jobs:
+  - job: io_demo_test
+    pool:
+      name: MLNX
+      demands:
+        - ucx_roce -equals yes
+    displayName: IO Demo test
+    timeoutInMinutes: 240
+
+    steps:
+      # address permissions issue when some files created as read-only
+      - bash: chmod u+rwx ./ -R
+
+      - checkout: self
+        clean: true
+        displayName: Checkout
+
+      - bash: |
+          set -eE
+
+          ./autogen.sh
+          ./contrib/configure-release --prefix=$PWD/__install
+          make -j`nproc`
+        displayName: Build
+
+      - bash: |
+          set -eEx
+
+          server_ip=$(ip addr show bond0 | awk '/inet / {print $2}' | awk -F/ '{print $1}')
+          ip addr show bond0
+          echo "##vso[task.setvariable variable=workspace]$WS"
+          echo "##vso[task.setvariable variable=server_ip]$server_ip"
+
+          source test/apps/iodemo/env
+          if ! test/apps/iodemo/io_demo >server.log 2>&1 & then
+            echo "##vso[task.logissue type=error]Fail to start server"
+            echo "##vso[task.complete result=Failed;]"
+          fi
+          server_pid=$!
+          echo "##vso[task.setvariable variable=server_pid]$server_pid"
+
+          # double check the process is running
+          sleep 3
+          if ! kill -0 $server_pid; then
+            cat server.log
+            echo "##vso[task.logissue type=error]Fail to start server"
+            echo "##vso[task.complete result=Failed;]"
+          fi
+        displayName: Start server
+        name: server
+        env:
+          WS: $(Build.Repository.LocalPath)
+
+      - task: SSH@0
+        inputs:
+          sshEndpoint: ucx-roce-client
+          runOptions: inline
+          inline: |
+            #!/bin/bash -leE
+            IP=$(server_ip)
+            timeout="$(( ${{ parameters.test_duration }} - 1 ))m"
+            workdir=$(workspace)
+
+            # avoid err: TERM environment variable not set
+            export TERM=xterm
+
+            echo "Server IP is $IP"
+            echo "Timeout is $timeout"
+            cd $workdir
+
+            ip addr show bond0
+            ping -c 2 $IP
+
+            source test/apps/iodemo/env
+            if ! test/apps/iodemo/io_demo -l $timeout -i 10000000 $IP >client.log 2>&1 & then
+              cat client.log
+              echo "##vso[task.logissue type=error]Failed to start client"
+              echo "##vso[task.complete result=Failed;]"
+            fi
+            client_pid=$!
+            echo "##vso[task.setvariable variable=client_pid]$client_pid"
+
+            # double check the process is running
+            sleep 3
+            if ! kill -0 $client_pid; then
+              cat client.log
+              echo "##vso[task.logissue type=error]Error in client"
+              echo "##vso[task.complete result=Failed;]"
+            fi
+            echo "Client is running, PID=$client_pid"
+
+            # TODO: implement network corruptions
+
+            if ! wait $client_pid; then
+              cat client.log
+              echo "##vso[task.logissue type=error]Error in client"
+              echo "##vso[task.complete result=Failed;]"
+            else
+              cat client.log
+              echo "Client exited successfully"
+            fi
+        displayName: Test
+        timeoutInMinutes: ${{ parameters.test_duration }}
+
+      - task: SSH@0
+        inputs:
+          sshEndpoint: ucx-roce-client
+          runOptions: inline
+          inline: |
+            #!/bin/bash -leE
+            pid=$(client_pid)
+
+            if ps -p $pid; then
+              kill $pid
+              echo "##vso[task.logissue type=warning]Client is still running, killing it"
+            fi
+        displayName: Kill client (if hang)
+        condition: always()
+
+      - bash: |
+          set -eE
+          pid=$(server_pid)
+
+          echo "Stopping the server, PID=${pid}"
+          if ! kill ${pid}; then
+            cat server.log
+            echo "##vso[task.logissue type=error]Server doesn't exist"
+            echo "##vso[task.complete result=Failed;]"
+          else
+            cat server.log
+            echo "Server stopped successfully"
+          fi
+        displayName: Kill the server
+        condition: always()
