@@ -28,80 +28,16 @@ jobs:
 
       - bash: |
           set -eEx
-
-          server_ip=$(ip addr show bond0 | awk '/inet / {print $2}' | awk -F/ '{print $1}')
-          ip addr show bond0
-          echo "##vso[task.setvariable variable=workspace]$WS"
-          echo "##vso[task.setvariable variable=server_ip]$server_ip"
-
-          source test/apps/iodemo/env
-          if ! test/apps/iodemo/io_demo >server.log 2>&1 & then
-            echo "##vso[task.logissue type=error]Fail to start server"
-            echo "##vso[task.complete result=Failed;]"
-          fi
-          server_pid=$!
-          echo "##vso[task.setvariable variable=server_pid]$server_pid"
-
-          # double check the process is running
-          sleep 3
-          if ! kill -0 $server_pid; then
-            cat server.log
-            echo "##vso[task.logissue type=error]Fail to start server"
-            echo "##vso[task.complete result=Failed;]"
-          fi
+          ./buildlib/az-io_demo-server.sh
         displayName: Start server
         name: server
-        env:
-          WS: $(Build.Repository.LocalPath)
 
       - task: SSH@0
         inputs:
           sshEndpoint: ucx-roce-client
-          runOptions: inline
-          inline: |
-            #!/bin/bash -leE
-            IP=$(server_ip)
-            timeout="$(( ${{ parameters.test_duration }} - 1 ))m"
-            workdir=$(workspace)
-
-            # avoid err: TERM environment variable not set
-            export TERM=xterm
-
-            echo "Server IP is $IP"
-            echo "Timeout is $timeout"
-            cd $workdir
-
-            ip addr show bond0
-            ping -c 2 $IP
-
-            source test/apps/iodemo/env
-            if ! test/apps/iodemo/io_demo -l $timeout -i 10000000 $IP >client.log 2>&1 & then
-              cat client.log
-              echo "##vso[task.logissue type=error]Failed to start client"
-              echo "##vso[task.complete result=Failed;]"
-            fi
-            client_pid=$!
-            echo "##vso[task.setvariable variable=client_pid]$client_pid"
-
-            # double check the process is running
-            sleep 3
-            if ! kill -0 $client_pid; then
-              cat client.log
-              echo "##vso[task.logissue type=error]Error in client"
-              echo "##vso[task.complete result=Failed;]"
-            fi
-            echo "Client is running, PID=$client_pid"
-
-            # TODO: implement network corruptions
-
-            if ! wait $client_pid; then
-              cat client.log
-              echo "##vso[task.logissue type=error]Error in client"
-              echo "##vso[task.complete result=Failed;]"
-            else
-              cat client.log
-              echo "Client exited successfully"
-            fi
+          runOptions: script
+          scriptPath: $(Build.Repository.LocalPath)/buildlib/az-io_demo-test.sh
+          args: "IP=$(server_ip) workspace=$(workspace) duration=${{ parameters.test_duration }}"
         displayName: Test
         timeoutInMinutes: ${{ parameters.test_duration }}
 
@@ -111,10 +47,7 @@ jobs:
           runOptions: inline
           inline: |
             #!/bin/bash -leE
-            pid=$(client_pid)
-
-            if ps -p $pid; then
-              kill $pid
+            if pkill -f io_demo; then
               echo "##vso[task.logissue type=warning]Client is still running, killing it"
             fi
         displayName: Kill client (if hang)
