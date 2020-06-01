@@ -1,14 +1,19 @@
 parameters:
-  test_duration: 2
+  - name: test_duration
+    type: number
+    default: 2
+  - name: tests
+    type: object
+    default: [base]
 
 jobs:
-  - job: io_demo_test
+  - job: io_build
+    displayName: Build io_demo
+
     pool:
       name: MLNX
       demands:
         - ucx_roce -equals yes
-    displayName: IO Demo test
-    timeoutInMinutes: 240
 
     steps:
       # address permissions issue when some files created as read-only
@@ -19,12 +24,38 @@ jobs:
         displayName: Checkout
 
       - bash: |
-          set -eE
+          set -eEx
 
           ./autogen.sh
           ./contrib/configure-release --prefix=$PWD/__install
           make -j`nproc`
+
+          echo "##vso[task.setvariable variable=workspace;isOutput=true]$(Build.Repository.LocalPath)/buildlib"
+          echo "i'm here"
         displayName: Build
+        name: build
+
+  - job: test
+    dependsOn: io_build
+
+    pool:
+      name: MLNX
+      demands:
+        - ucx_roce -equals yes
+
+    strategy:
+      matrix:
+        ${{ each test in parameters.tests }}:
+          ${{ test }}:
+            test_name: ${{ test }}
+      maxParallel: 1
+
+    variables:
+      workspace: $[ dependencies.io_build.outputs['build.workspace'] ]
+
+    displayName: Test
+    steps:
+      - checkout: none
 
       - bash: |
           set -eEx
@@ -54,8 +85,9 @@ jobs:
         condition: always()
 
       - bash: |
-          set -eE
+          set -eEx
           pid=$(server_pid)
+          cd "$WORKSPACE"
 
           echo "Stopping the server, PID=${pid}"
           if ! kill ${pid}; then

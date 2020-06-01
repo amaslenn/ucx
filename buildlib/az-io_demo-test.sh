@@ -1,14 +1,15 @@
-#!/bin/bash -leE
+#!/bin/bash -leEx
 
 basedir=$(cd $(dirname $0) && pwd)
-workspace=${workspace:=$(pwd)}
+workspace=${WORKSPACE:="$basedir"}
 cd "$workspace"
 
 eval "$*"
+source "${workspace}/az-helpers.sh"
+
 IP=${IP:=""}
 duration=${duration:=2}
 
-source "${workspace}/az-helpers.sh"
 if [ "x$IP" = "x" ]; then
     error "Server IP is not set (env var 'IP')"
 fi
