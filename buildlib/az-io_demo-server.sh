@@ -1,4 +1,4 @@
-#!/bin/bash -leEx
+#!/bin/bash -leE
 
 basedir=$(cd $(dirname $0) && pwd)
 workspace=${WORKSPACE:="$basedir"}
