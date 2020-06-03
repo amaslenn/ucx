@@ -11,22 +11,22 @@ jobs:
       matrix:
         centos7_cuda10_1:
           build_container: centos7_cuda10_1
-          artifact_name: centos7-cuda10.1.tar
-        centos7_cuda10_2:
-          build_container: centos7_cuda10_2
-          artifact_name: centos7-cuda10.2.tar
-        ubuntu16_cuda10_1:
-          build_container: ubuntu16_cuda10_1
-          artifact_name: ubuntu16.04-cuda10.1.deb
-        ubuntu16_cuda10_2:
-          build_container: ubuntu16_cuda10_2
-          artifact_name: ubuntu16.04-cuda10.2.deb
-        ubuntu18_cuda10_1:
-          build_container: ubuntu18_cuda10_1
-          artifact_name: ubuntu18.04-cuda10.1.deb
-        ubuntu18_cuda10_2:
-          build_container: ubuntu18_cuda10_2
-          artifact_name: ubuntu18.04-cuda10.2.deb
+          artifact_name: ucx-v${{ replace(variables['Build.SourceBranch'], 'refs/tags/', '') }}-centos7-mofed5.0-cuda10.1.tar
+        # centos7_cuda10_2:
+        #   build_container: centos7_cuda10_2
+        #   artifact_name: ucx-v${{ replace(variables['Build.SourceBranch'], 'refs/tags/', '') }}-centos7-mofed5.0-cuda10.2.tar
+        # ubuntu16_cuda10_1:
+        #   build_container: ubuntu16_cuda10_1
+        #   artifact_name: ucx-v${{ replace(variables['Build.SourceBranch'], 'refs/tags/', '') }}-ubuntu16.04-mofed5.0-cuda10.1.deb
+        # ubuntu16_cuda10_2:
+        #   build_container: ubuntu16_cuda10_2
+        #   artifact_name: ucx-v${{ replace(variables['Build.SourceBranch'], 'refs/tags/', '') }}-ubuntu16.04-mofed5.0-cuda10.2.deb
+        # ubuntu18_cuda10_1:
+        #   build_container: ubuntu18_cuda10_1
+        #   artifact_name: ucx-v${{ replace(variables['Build.SourceBranch'], 'refs/tags/', '') }}-ubuntu18.04-mofed5.0-cuda10.1.deb
+        # ubuntu18_cuda10_2:
+        #   build_container: ubuntu18_cuda10_2
+        #   artifact_name: ucx-v${{ replace(variables['Build.SourceBranch'], 'refs/tags/', '') }}-ubuntu18.04-mofed5.0-cuda10.2.deb
 
     container: $[ variables['build_container'] ]
 

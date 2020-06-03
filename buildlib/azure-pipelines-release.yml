@@ -29,6 +29,6 @@ stages:
   - stage: Release
     jobs:
       - template: az-distro-release.yml
-      - template: az-jucx-publish.yml
-        parameters:
-          target: publish-release
+      # - template: az-jucx-publish.yml
+      #   parameters:
+      #     target: publish-release
