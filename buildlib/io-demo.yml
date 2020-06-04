@@ -66,7 +66,7 @@ jobs:
 
       - bash: |
           set -eEx
-          ./buildlib/az-io_demo-server.sh
+          ./buildlib/az-io_demo.sh workspace=$(workspace)
         displayName: Start server
         name: server
 
@@ -74,8 +74,8 @@ jobs:
         inputs:
           sshEndpoint: ucx-roce-client
           runOptions: script
-          scriptPath: $(Build.Repository.LocalPath)/buildlib/az-io_demo-test.sh
-          args: "IP=$(server_ip) workspace=$(workspace) duration=${{ parameters.test_duration }}"
+          scriptPath: $(Build.Repository.LocalPath)/buildlib/az-io_demo.sh
+          args: "server_ip=$(server_ip) workspace=$(workspace) duration=${{ parameters.test_duration }}"
         displayName: Test
         timeoutInMinutes: ${{ parameters.test_duration }}
 
@@ -92,7 +92,7 @@ jobs:
         condition: always()
 
       - bash: |
-          set -eEx
+          set -eE
           pid=$(server_pid)
           cd "$WORKSPACE"
 
@@ -109,7 +109,7 @@ jobs:
         condition: always()
 
       - bash: |
-          set -eEx
+          set -eE
           pid=$(corrupter_pid)
 
           echo "Stopping  corrupter, PID=${pid}"
