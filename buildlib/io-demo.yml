@@ -79,18 +79,6 @@ jobs:
         displayName: Test
         timeoutInMinutes: ${{ parameters.test_duration }}
 
-      - task: SSH@0
-        inputs:
-          sshEndpoint: ucx-roce-client
-          runOptions: inline
-          inline: |
-            #!/bin/bash -leE
-            if pkill -f io_demo; then
-              echo "##vso[task.logissue type=warning]Client is still running, killing it"
-            fi
-        displayName: Kill client (if hang)
-        condition: always()
-
       - bash: |
           set -eE
           pid=$(server_pid)
