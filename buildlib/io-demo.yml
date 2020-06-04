@@ -53,7 +53,7 @@ jobs:
     variables:
       workspace: $[ dependencies.io_build.outputs['build.workspace'] ]
 
-    displayName: Test
+    displayName: "io_demo: "
     steps:
       - checkout: none
 
