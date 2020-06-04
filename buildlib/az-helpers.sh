@@ -1,10 +1,18 @@
 #!/bin/bash -eE
 
+# The following functions uses Azure logging commands to report test
+# details or errors. If the process is not running in Azure environment,
+# no special output is generated.
+
+# Logging commands documentation: https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands
+
+
 RUNNING_IN_AZURE="yes"
 if [ -z "$AGENT_ID" ]; then
     RUNNING_IN_AZURE="no"
 fi
 
+# Report error and exit
 function error() {
     msg=$1
     azure_log_issue "${msg}"
@@ -12,6 +20,7 @@ function error() {
     exit 1
 }
 
+# Define Azure pipeline variable
 function azure_set_variable() {
     test "x$RUNNING_IN_AZURE" = "xno" && return
     name=$1
@@ -19,6 +28,7 @@ function azure_set_variable() {
     echo "##vso[task.setvariable variable=${name}]${value}"
 }
 
+# Report an issue to Azure pipeline and stop step execution
 function azure_log_issue() {
     test "x$RUNNING_IN_AZURE" = "xno" && return
     msg=$1
