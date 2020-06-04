@@ -59,6 +59,13 @@ jobs:
 
       - bash: |
           set -eEx
+          source ./buildlib/az-helpers.sh
+          ./buildlib/az-network-corrupter.sh initial_delay=1 cycles=2 downtime=2 uptime=5 >corrupter.log 2>&1
+          azure_set_variable "corrupter_pid" $$
+        displayName: Start network corrupter
+
+      - bash: |
+          set -eEx
           ./buildlib/az-io_demo-server.sh
         displayName: Start server
         name: server
@@ -99,4 +106,16 @@ jobs:
             echo "Server stopped successfully"
           fi
         displayName: Kill the server
+        condition: always()
+
+      - bash: |
+          set -eEx
+          pid=$(corrupter_pid)
+
+          echo "Stopping  corrupter, PID=${pid}"
+          if ! kill ${pid}; then
+            echo "##vso[task.logissue type=warning]Corrupter doesn't exist"
+          fi
+          cat corrupter.log
+        displayName: Kill corrupter
         condition: always()
