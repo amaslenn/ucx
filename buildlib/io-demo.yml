@@ -87,7 +87,7 @@ jobs:
           echo "Stopping the server, PID=${pid}"
           if ! kill ${pid}; then
             cat server.log
-            echo "##vso[task.logissue type=error]Server doesn't exist"
+            echo "##vso[task.logissue type=error]Can't stop server: process doesn't exist"
             echo "##vso[task.complete result=Failed;]"
           else
             cat server.log
@@ -102,7 +102,7 @@ jobs:
 
           echo "Stopping  corrupter, PID=${pid}"
           if ! kill ${pid}; then
-            echo "##vso[task.logissue type=warning]Corrupter doesn't exist"
+            echo "##vso[task.logissue type=warning]Can't stop corrupter: process doesn't exist"
           fi
           cat corrupter.log
         displayName: Kill corrupter
