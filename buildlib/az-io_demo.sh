@@ -30,7 +30,6 @@ if [ "x$server_ip" = "x" ]; then
     server_ip=$(ip addr show ${iface} | awk '/inet / {print $2}' | awk -F/ '{print $1}')
     azure_set_variable "server_ip" "$server_ip"
 
-    source "${workspace}/../test/apps/iodemo/env"
     if ! "${workspace}/../test/apps/iodemo/io_demo" >server.log 2>&1 & then
         error "Failed to start server"
     fi
@@ -55,7 +54,6 @@ timeout="$(( duration - 1 ))m"
 echo "Server IP is $server_ip"
 echo "Timeout is $timeout"
 
-source "${workspace}/../test/apps/iodemo/env"
 if ! "${workspace}/../test/apps/iodemo/io_demo" -l $timeout -i 10000000 "$server_ip"; then
     error "Failed to start client"
 fi
