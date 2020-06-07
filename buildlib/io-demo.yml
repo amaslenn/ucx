@@ -4,7 +4,12 @@ parameters:
     default: 2
   - name: tests
     type: object
-    default: [base]
+    default:
+      base:
+        initial_delay: 1
+        cycles: 2
+        downtime: 2
+        uptime: 5
 
 jobs:
   - job: io_build
@@ -46,8 +51,12 @@ jobs:
     strategy:
       matrix:
         ${{ each test in parameters.tests }}:
-          ${{ test }}:
-            test_name: ${{ test }}
+          ${{ test.Key }}:
+            test_name: ${{ test.Key }}
+            initial_delay: ${{ test.Value.initial_delay }}
+            cycles: ${{ test.Value.cycles }}
+            downtime: ${{ test.Value.downtime }}
+            uptime: ${{ test.Value.uptime }}
       maxParallel: 1
 
     variables:
@@ -60,7 +69,12 @@ jobs:
       - bash: |
           set -eEx
           source ./buildlib/az-helpers.sh
-          ./buildlib/az-network-corrupter.sh initial_delay=1 cycles=2 downtime=2 uptime=5 >corrupter.log 2>&1
+          ./buildlib/az-network-corrupter.sh \
+            initial_delay=$(initial_delay) \
+            cycles=$(cycles) \
+            downtime=$(downtime) \
+            uptime=$(uptime) \
+            >& corrupter.log
           azure_set_variable "corrupter_pid" $$
         displayName: Start network corrupter
 
@@ -100,7 +114,7 @@ jobs:
           set -eE
           pid=$(corrupter_pid)
 
-          echo "Stopping  corrupter, PID=${pid}"
+          echo "Stopping corrupter, PID=${pid}"
           if ! kill ${pid}; then
             echo "##vso[task.logissue type=warning]Can't stop corrupter: process doesn't exist"
           fi

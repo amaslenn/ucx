@@ -35,3 +35,10 @@ function azure_log_issue() {
     echo "##vso[task.logissue type=error]${msg}"
     echo "##vso[task.complete result=Failed;]"
 }
+
+# Get IPv4 address of an interface
+function get_ip() {
+    iface=$1
+    ip=$(ip addr show "$iface" | awk '/inet / {print $2}' | awk -F/ '{print $1}')
+    echo "$ip"
+}

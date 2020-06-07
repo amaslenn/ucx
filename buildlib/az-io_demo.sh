@@ -27,10 +27,10 @@ export UCX_RC_TX_NUM_GET_OPS=8
 ## run server
 if [ "x$server_ip" = "x" ]; then
     ip addr show ${iface}
-    server_ip=$(ip addr show ${iface} | awk '/inet / {print $2}' | awk -F/ '{print $1}')
+    server_ip=$(get_ip ${iface})
     azure_set_variable "server_ip" "$server_ip"
 
-    if ! "${workspace}/../test/apps/iodemo/io_demo" >server.log 2>&1 & then
+    if ! "${workspace}/../test/apps/iodemo/io_demo" >& server.log & then
         error "Failed to start server"
     fi
     server_pid=$!
@@ -38,7 +38,7 @@ if [ "x$server_ip" = "x" ]; then
     azure_set_variable "server_pid" "$server_pid"
 
     # double check the process is running
-    sleep 3
+    sleep 5
     if ! kill -0 $server_pid; then
         cat server.log
         error "Failed to start server"
