@@ -74,13 +74,14 @@ jobs:
             cycles=$(cycles) \
             downtime=$(downtime) \
             uptime=$(uptime) \
-            >& corrupter.log
+            | add_timetamp >& corrupter.log
           azure_set_variable "corrupter_pid" $$
         displayName: Start network corrupter
 
       - bash: |
           set -eEx
-          ./buildlib/az-io_demo.sh workspace=$(workspace)
+          source ./buildlib/az-helpers.sh
+          ./buildlib/az-io_demo.sh workspace=$(workspace) | add_timetamp >& server.log
         displayName: Start server
         name: server
 

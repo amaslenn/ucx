@@ -42,3 +42,10 @@ function get_ip() {
     ip=$(ip addr show "$iface" | awk '/inet / {print $2}' | awk -F/ '{print $1}')
     echo "$ip"
 }
+
+# Prepend each line with a timestamp
+function add_timetamp() {
+    while IFS= read -r line; do
+        echo "$(date -u +"%Y-%m-%dT%T.%NZ") $line"
+    done
+}

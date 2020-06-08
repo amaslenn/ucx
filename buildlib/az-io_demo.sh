@@ -30,7 +30,7 @@ if [ "x$server_ip" = "x" ]; then
     server_ip=$(get_ip ${iface})
     azure_set_variable "server_ip" "$server_ip"
 
-    if ! "${workspace}/../test/apps/iodemo/io_demo" >& server.log & then
+    if ! "${workspace}/../test/apps/iodemo/io_demo" & then
         error "Failed to start server"
     fi
     server_pid=$!
