@@ -67,7 +67,7 @@ jobs:
       - checkout: none
 
       - bash: |
-          set -eE
+          set -eEx
           source ./buildlib/az-helpers.sh
           ./buildlib/az-network-corrupter.sh \
             initial_delay=$(initial_delay) \
