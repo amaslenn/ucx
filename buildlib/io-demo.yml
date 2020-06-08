@@ -68,8 +68,7 @@ jobs:
 
       - bash: |
           set -eEx
-          whoami
-          sudo /hpc/noarch/git_projects/swx_infrastructure/clusters/bin/manage_host_ports.sh $(hostname) "bond-up"
+
           source ./buildlib/az-helpers.sh
           ./buildlib/az-network-corrupter.sh \
             initial_delay=$(initial_delay) \
@@ -78,7 +77,7 @@ jobs:
             uptime=$(uptime) \
             |& add_timestamp >corrupter.log &
 
-          corrupter_pid=$(pgrep -u $USER 'network-corrupter')
+          corrupter_pid=$(pgrep -u $USER corrupter)
           echo "corrupter_pid=$corrupter_pid"
           azure_set_variable "corrupter_pid" "$corrupter_pid"
         displayName: Start network corrupter
