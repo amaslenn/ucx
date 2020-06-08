@@ -67,7 +67,7 @@ jobs:
       - checkout: none
 
       - bash: |
-          set -eEx
+          set -eE
           source ./buildlib/az-helpers.sh
           ./buildlib/az-network-corrupter.sh \
             initial_delay=$(initial_delay) \
@@ -75,7 +75,9 @@ jobs:
             downtime=$(downtime) \
             uptime=$(uptime) \
             |& add_timestamp >corrupter.log &
-          azure_set_variable "corrupter_pid" $$
+
+          corrupter_pid=$(ps -ef | grep -P '[n]etwork-corrupter' | awk '{print $2}')
+          azure_set_variable "corrupter_pid" "$corrupter_pid"
         displayName: Start network corrupter
 
       - bash: |
@@ -112,7 +114,7 @@ jobs:
         condition: always()
 
       - bash: |
-          set -eE
+          set -eEx
           pid=$(corrupter_pid)
 
           echo "Stopping corrupter, PID=${pid}"
