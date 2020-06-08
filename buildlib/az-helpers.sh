@@ -44,7 +44,7 @@ function get_ip() {
 }
 
 # Prepend each line with a timestamp
-function add_timetamp() {
+function add_timestamp() {
     while IFS= read -r line; do
         echo "$(date -u +"%Y-%m-%dT%T.%NZ") $line"
     done
