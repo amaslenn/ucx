@@ -77,6 +77,7 @@ jobs:
             |& add_timestamp >corrupter.log &
 
           corrupter_pid=$(pgrep -u $USER 'network-corrupter')
+          echo "corrupter_pid=$corrupter_pid"
           azure_set_variable "corrupter_pid" "$corrupter_pid"
         displayName: Start network corrupter
 
@@ -114,7 +115,7 @@ jobs:
         condition: always()
 
       - bash: |
-          set -eEx
+          set -eE
           pid=$(corrupter_pid)
 
           echo "Stopping corrupter, PID=${pid}"
@@ -122,5 +123,7 @@ jobs:
             echo "##vso[task.logissue type=warning]Can't stop corrupter: process doesn't exist"
           fi
           cat corrupter.log
+
+          ./buildlib/az-network-corrupter.sh reset=yes
         displayName: Kill corrupter
         condition: always()
