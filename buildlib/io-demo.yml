@@ -78,7 +78,7 @@ jobs:
             |& add_timestamp >corrupter.log &
 
           ps ux | grep 'corrupter'
-          pgrep -u \$USER corrupter
+          pgrep corrupter
           corrupter_pid=$(pgrep -u $USER corrupter)
           echo "corrupter_pid=$corrupter_pid"
           azure_set_variable "corrupter_pid" "$corrupter_pid"
