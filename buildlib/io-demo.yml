@@ -68,6 +68,7 @@ jobs:
 
       - bash: |
           set -eEx
+          sudo /hpc/noarch/git_projects/swx_infrastructure/clusters/bin/manage_host_ports.sh $(hostname) "bond-up"
           source ./buildlib/az-helpers.sh
           ./buildlib/az-network-corrupter.sh \
             initial_delay=$(initial_delay) \
