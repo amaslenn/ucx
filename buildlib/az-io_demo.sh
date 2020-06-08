@@ -30,10 +30,10 @@ if [ "x$server_ip" = "x" ]; then
     server_ip=$(get_ip ${iface})
     azure_set_variable "server_ip" "$server_ip"
 
-    if ! "${workspace}/../test/apps/iodemo/io_demo" & then
+    if ! "${workspace}/../test/apps/iodemo/io_demo" 2>&1 | add_timetamp >& server.log & then
         error "Failed to start server"
     fi
-    server_pid=$!
+    server_pid=$(ps -ef | grep -P '\/[i]o_demo' | awk '{print $2}')
     echo "Server is running, PID=$server_pid"
     azure_set_variable "server_pid" "$server_pid"
 

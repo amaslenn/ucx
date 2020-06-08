@@ -81,7 +81,7 @@ jobs:
       - bash: |
           set -eEx
           source ./buildlib/az-helpers.sh
-          ./buildlib/az-io_demo.sh workspace=$(workspace) 2>&1 | add_timestamp >& server.log &
+          ./buildlib/az-io_demo.sh workspace=$(workspace)
         displayName: Start server
         name: server
 
