@@ -74,7 +74,7 @@ jobs:
             cycles=$(cycles) \
             downtime=$(downtime) \
             uptime=$(uptime) \
-            2>&1 | add_timestamp >& corrupter.log &
+            |& add_timestamp >corrupter.log &
           azure_set_variable "corrupter_pid" $$
         displayName: Start network corrupter
 
