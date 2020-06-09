@@ -8,8 +8,8 @@ parameters:
       base:
         initial_delay: 20
         cycles: 100
-        downtime: 2
-        uptime: 5
+        downtime: 5
+        uptime: 20
 
 jobs:
   - job: io_build
