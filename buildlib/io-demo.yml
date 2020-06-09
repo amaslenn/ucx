@@ -77,9 +77,9 @@ jobs:
             uptime=$(uptime) \
             |& add_timestamp >corrupter.log &
 
-          ps ux | grep 'corrupter'
+          ps u | grep 'corrupter'
           pgrep corrupter
-          corrupter_pid=$(pgrep -u $USER corrupter)
+          corrupter_pid=$(pgrep -u "$USER" corrupter)
           echo "corrupter_pid=$corrupter_pid"
           azure_set_variable "corrupter_pid" "$corrupter_pid"
         displayName: Start network corrupter
