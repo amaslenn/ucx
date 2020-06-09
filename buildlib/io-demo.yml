@@ -36,7 +36,6 @@ jobs:
           make -j`nproc`
 
           echo "##vso[task.setvariable variable=workspace;isOutput=true]$(Build.Repository.LocalPath)/buildlib"
-          echo "i'm here"
         displayName: Build
         name: build
 

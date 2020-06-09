@@ -34,7 +34,7 @@ if [ "x$server_ip" = "x" ]; then
     if ! "${workspace}/../test/apps/iodemo/io_demo" |& add_timestamp >server.log & then
         error "Failed to start server"
     fi
-    server_pid=$(pgrep -u "$USER" io_demo | awk '{print $2}')
+    server_pid=$(pgrep -u "$USER" -f io_demo)
     echo "Server is running, PID=$server_pid"
     azure_set_variable "server_pid" "$server_pid"
 
