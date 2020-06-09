@@ -1,5 +1,6 @@
 #!/bin/bash -eE
 
+echo "CLI is: $*"
 eval "$*"
 initial_delay=${initial_delay:=10}
 cycles=${cycles:=1000}
