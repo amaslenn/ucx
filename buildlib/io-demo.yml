@@ -6,7 +6,7 @@ parameters:
     type: object
     default:
       base:
-        initial_delay: 10
+        initial_delay: 20
         cycles: 100
         downtime: 2
         uptime: 5
