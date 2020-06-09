@@ -16,7 +16,7 @@ fi
 echo "Initial delay ${initial_delay} sec"
 sleep ${initial_delay}
 
-for i in $(seq 1 ${cycles} 1); do
+for i in $(seq 1 ${cycles}); do
     echo "#$i Put it down! And sleep ${downtime}"
     sudo /hpc/noarch/git_projects/swx_infrastructure/clusters/bin/manage_host_ports.sh "$(hostname)" "bond-down"
     sleep "$downtime"
