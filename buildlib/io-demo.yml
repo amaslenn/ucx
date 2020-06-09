@@ -67,7 +67,7 @@ jobs:
       - checkout: none
 
       - bash: |
-          set -eEx
+          set -eE
 
           source ./buildlib/az-helpers.sh
           ./buildlib/az-network-corrupter.sh \

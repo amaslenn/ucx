@@ -9,6 +9,7 @@ reset=${reset:="no"}
 
 
 if [ "x$reset" = "xyes" ]; then
+    echo "Resetting interface on $(hostname)..."
     sudo /hpc/noarch/git_projects/swx_infrastructure/clusters/bin/manage_host_ports.sh "$(hostname)" "bond-up"
     exit $?
 fi
