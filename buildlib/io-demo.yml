@@ -79,9 +79,9 @@ jobs:
           ./buildlib/az-network-corrupter.sh >& corrupter.log &
 
           ps ux
-          pgrep corrupter
+          pgrep -u "$USER" -f 'network-corrupter'
           echo "---"
-          corrupter_pid=$(pgrep -u "$USER" corrupter)
+          corrupter_pid=$(pgrep -u "$USER" -f 'network-corrupter')
           echo "corrupter_pid=$corrupter_pid"
           azure_set_variable "corrupter_pid" "$corrupter_pid"
         displayName: Start network corrupter
