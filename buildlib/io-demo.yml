@@ -78,8 +78,9 @@ jobs:
           #   |& add_timestamp >corrupter.log &
           ./buildlib/az-network-corrupter.sh &
 
-          ps u | grep 'corrupter'
+          ps ux
           pgrep corrupter
+          echo "---"
           corrupter_pid=$(pgrep -u "$USER" corrupter)
           echo "corrupter_pid=$corrupter_pid"
           azure_set_variable "corrupter_pid" "$corrupter_pid"
