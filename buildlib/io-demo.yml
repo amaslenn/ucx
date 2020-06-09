@@ -70,12 +70,13 @@ jobs:
           set -eEx
 
           source ./buildlib/az-helpers.sh
-          ./buildlib/az-network-corrupter.sh \
-            initial_delay=$(initial_delay) \
-            cycles=$(cycles) \
-            downtime=$(downtime) \
-            uptime=$(uptime) \
-            |& add_timestamp >corrupter.log &
+          # ./buildlib/az-network-corrupter.sh \
+          #   initial_delay=$(initial_delay) \
+          #   cycles=$(cycles) \
+          #   downtime=$(downtime) \
+          #   uptime=$(uptime) \
+          #   |& add_timestamp >corrupter.log &
+          ./buildlib/az-network-corrupter.sh &
 
           ps u | grep 'corrupter'
           pgrep corrupter
