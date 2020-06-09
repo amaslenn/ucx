@@ -6,8 +6,8 @@ parameters:
     type: object
     default:
       base:
-        initial_delay: 1
-        cycles: 2
+        initial_delay: 10
+        cycles: 100
         downtime: 2
         uptime: 5
 
@@ -31,9 +31,9 @@ jobs:
       - bash: |
           set -eEx
 
-          #./autogen.sh
-          #./contrib/configure-release --prefix=$PWD/__install
-          #make -j`nproc`
+          ./autogen.sh
+          ./contrib/configure-release --prefix=$PWD/__install
+          make -j`nproc`
 
           echo "##vso[task.setvariable variable=workspace;isOutput=true]$(Build.Repository.LocalPath)/buildlib"
           echo "i'm here"
@@ -82,38 +82,38 @@ jobs:
           azure_set_variable "corrupter_pid" "$corrupter_pid"
         displayName: Start network corrupter
 
-      # - bash: |
-      #     set -eEx
-      #     source ./buildlib/az-helpers.sh
-      #     ./buildlib/az-io_demo.sh workspace=$(workspace)
-      #   displayName: Start server
-      #   name: server
+      - bash: |
+          set -eEx
+          source ./buildlib/az-helpers.sh
+          ./buildlib/az-io_demo.sh workspace=$(workspace)
+        displayName: Start server
+        name: server
 
-      # - task: SSH@0
-      #   inputs:
-      #     sshEndpoint: ucx-roce-client
-      #     runOptions: script
-      #     scriptPath: $(Build.Repository.LocalPath)/buildlib/az-io_demo.sh
-      #     args: "server_ip=$(server_ip) workspace=$(workspace) duration=${{ parameters.test_duration }}"
-      #   displayName: Test
-      #   timeoutInMinutes: ${{ parameters.test_duration }}
+      - task: SSH@0
+        inputs:
+          sshEndpoint: ucx-roce-client
+          runOptions: script
+          scriptPath: $(Build.Repository.LocalPath)/buildlib/az-io_demo.sh
+          args: "server_ip=$(server_ip) workspace=$(workspace) duration=${{ parameters.test_duration }}"
+        displayName: Test
+        timeoutInMinutes: ${{ parameters.test_duration }}
 
-      # - bash: |
-      #     set -eE
-      #     pid=$(server_pid)
-      #     cd "$WORKSPACE"
+      - bash: |
+          set -eE
+          pid=$(server_pid)
+          cd "$WORKSPACE"
 
-      #     echo "Stopping the server, PID=${pid}"
-      #     if ! kill ${pid}; then
-      #       cat server.log
-      #       echo "##vso[task.logissue type=error]Can't stop server: process doesn't exist"
-      #       echo "##vso[task.complete result=Failed;]"
-      #     else
-      #       cat server.log
-      #       echo "Server stopped successfully"
-      #     fi
-      #   displayName: Kill the server
-      #   condition: always()
+          echo "Stopping the server, PID=${pid}"
+          if ! kill ${pid}; then
+            cat server.log
+            echo "##vso[task.logissue type=error]Can't stop server: process doesn't exist"
+            echo "##vso[task.complete result=Failed;]"
+          else
+            cat server.log
+            echo "Server stopped successfully"
+          fi
+        displayName: Kill the server
+        condition: always()
 
       - bash: |
           set -eE

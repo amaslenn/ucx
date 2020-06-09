@@ -7,7 +7,7 @@ basedir=$(cd $(dirname $0) && pwd)
 workspace=${WORKSPACE:="$basedir"}
 cd "$workspace"
 
-echo "CLI is: $*"
+echo "Running $0 $*..."
 eval "$*"
 source "${workspace}/az-helpers.sh"
 
