@@ -76,7 +76,7 @@ jobs:
           #   downtime=$(downtime) \
           #   uptime=$(uptime) \
           #   |& add_timestamp >corrupter.log &
-          ./buildlib/az-network-corrupter.sh &
+          ./buildlib/az-network-corrupter.sh >& corrupter.log &
 
           ps ux
           pgrep corrupter
